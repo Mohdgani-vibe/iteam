@@ -10,7 +10,10 @@ export default function InstallAgent() {
   --token ${apiToken} \\
   --with-clamav \\
   --with-salt-minion \\
-  --enable-systemd`;
+  --enable-systemd \\
+  --sync-system`;
+
+  const windowsCommand = `powershell -ExecutionPolicy Bypass -Command "iwr -useb https://agent.zerodha.it/install.ps1 | iex; & install.ps1 -Token '${apiToken}' -WithClamAV -WithSaltMinion -SyncSystem"`;
 
   const systemdConfig = `[Unit]
 Description=Zerodha IT Management Agent
@@ -19,7 +22,7 @@ Wants=clamav-daemon.service salt-minion.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/zit-agent --token ${apiToken}
+ExecStart=/usr/bin/zit-agent --token ${apiToken} --sync
 Restart=always
 RestartSec=10
 StandardOutput=syslog
@@ -39,22 +42,22 @@ WantedBy=multi-user.target`;
     <div className="p-8 max-w-5xl mx-auto">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900 mb-2">Install New Agent</h1>
-        <p className="text-slate-500">Deploy the Zerodha IT management agent with integrated security and configuration management.</p>
+        <p className="text-slate-500">Deploy the Zerodha IT management agent with integrated security, system sync, and configuration management.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          {/* Quick Install */}
+          {/* Linux Quick Install */}
           <section className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
             <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Terminal className="w-4 h-4 text-slate-500" />
-                <h2 className="font-semibold text-slate-800">Quick Installation</h2>
+                <h2 className="font-semibold text-slate-800">Ubuntu / Linux Installation</h2>
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded">Linux / macOS</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded">Ubuntu 22.04+</span>
             </div>
             <div className="p-6">
-              <p className="text-sm text-slate-600 mb-4">Run this command on the target machine to install the agent with ClamAV and Salt-Minion integration.</p>
+              <p className="text-sm text-slate-600 mb-4">Run this command on your Ubuntu system to install the agent, ClamAV, and Salt-Minion with full system sync.</p>
               <div className="relative group">
                 <pre className="bg-slate-900 text-slate-100 p-4 rounded-lg text-sm font-mono overflow-x-auto">
                   {installCommand}
@@ -64,6 +67,31 @@ WantedBy=multi-user.target`;
                   className="absolute top-3 right-3 p-2 bg-white/10 hover:bg-white/20 rounded-md transition-all text-white"
                 >
                   {copied === 'cmd' ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* Windows Quick Install */}
+          <section className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Terminal className="w-4 h-4 text-slate-500" />
+                <h2 className="font-semibold text-slate-800">Windows Installation</h2>
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded">Windows 10/11</span>
+            </div>
+            <div className="p-6">
+              <p className="text-sm text-slate-600 mb-4">Run this PowerShell command as Administrator to deploy the agent on Windows systems.</p>
+              <div className="relative group">
+                <pre className="bg-slate-900 text-slate-100 p-4 rounded-lg text-sm font-mono overflow-x-auto">
+                  {windowsCommand}
+                </pre>
+                <button 
+                  onClick={() => handleCopy(windowsCommand, 'win')}
+                  className="absolute top-3 right-3 p-2 bg-white/10 hover:bg-white/20 rounded-md transition-all text-white"
+                >
+                  {copied === 'win' ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                 </button>
               </div>
             </div>

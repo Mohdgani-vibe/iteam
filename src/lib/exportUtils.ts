@@ -53,6 +53,22 @@ export const exportToPDF = (data: any[], title: string, filename: string) => {
     theme: 'grid',
     headStyles: { fillColor: [37, 99, 235] },
   });
+
+  // Add signature fields if it's a gatepass or requested
+  if (title.toLowerCase().includes('gatepass')) {
+    const finalY = (doc as any).lastAutoTable.finalY + 30;
+    doc.setFontSize(10);
+    
+    // Signature lines
+    doc.line(14, finalY, 70, finalY);
+    doc.text('Employee Signature', 14, finalY + 5);
+    
+    doc.line(75, finalY, 131, finalY);
+    doc.text('Manager Signature', 75, finalY + 5);
+    
+    doc.line(136, finalY, 192, finalY);
+    doc.text('Security Signature', 136, finalY + 5);
+  }
   
   doc.save(filename);
 };

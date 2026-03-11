@@ -1,59 +1,71 @@
-export type DeviceStatus = 'Online' | 'Offline' | 'Maintenance';
-export type Severity = 'Low' | 'Medium' | 'High' | 'Critical';
-export type TicketStatus = 'Open' | 'In Progress' | 'Waiting' | 'Closed';
-export type GatepassStatus = 'Draft' | 'Pending Manager Approval' | 'Pending Employee Signature' | 'Pending Security Signature' | 'Approved' | 'Out' | 'Returned' | 'Closed' | 'Rejected';
+export type UserRole = 'super-admin' | 'it-team' | 'employee';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  department?: string;
+  avatar?: string;
+}
 
 export interface Device {
   id: string;
   name: string;
-  assetTag: string;
-  status: DeviceStatus;
-  group: string;
+  ownerId: string;
+  ownerName: string;
+  status: string;
   type: string;
-  user: string;
-  emailId?: string;
-  branch: string;
   os: string;
-  score: number;
-  reachability: number;
   lastSeen: string;
-  cpu: number;
-  memory: number;
-  disk: number;
+  ipAddress: string;
+  cpu: string;
+  ram: string;
+  storage: string;
+  assetTag?: string;
+  group?: string;
+  score?: number;
+  reachability?: number;
+  user?: string;
+  emailId?: string;
   hardwareSpecs?: {
     cpu: string;
     ram: string;
     storage: string;
     gpu: string;
   };
-  installedSoftware?: {
-    name: string;
-    version: string;
-  }[];
+  installedSoftware?: { name: string; version: string }[];
 }
 
 export interface Ticket {
   id: string;
   title: string;
-  user: string;
-  priority: Severity;
-  status: TicketStatus;
-  assignee: string;
-  deviceId?: string;
-  createdAt: string;
   description: string;
+  status: string;
+  priority: string;
+  requesterId: string;
+  requesterName: string;
+  assigneeId?: string;
+  assignee?: string;
+  user?: string;
+  createdAt: string;
+  type: string;
 }
 
 export interface Alert {
   id: string;
-  type: string;
-  severity: Severity;
-  deviceId: string;
-  deviceName: string;
-  branch: string;
-  time: string;
-  status: 'Open' | 'Acknowledged' | 'Resolved';
-  description: string;
+  title: string;
+  message: string;
+  severity: string;
+  timestamp: string;
+  targetUserId?: string;
+  type?: string;
+  deviceId?: string;
+  deviceName?: string;
+  branch?: string;
+  time?: string;
+  status?: string;
+  description?: string;
 }
 
 export interface StockItem {
@@ -64,8 +76,7 @@ export interface StockItem {
   available: number;
   reserved: number;
   issued: number;
-  reorderLevel: number;
-  status: 'Healthy' | 'Low Stock' | 'Out of Stock';
+  status: string;
 }
 
 export interface Gatepass {
@@ -76,10 +87,10 @@ export interface Gatepass {
   employeeEmail: string;
   branch: string;
   purpose: string;
-  status: GatepassStatus;
-  managerSign?: { name: string; date: string; remarks: string };
-  employeeSign?: { name: string; date: string };
-  securitySign?: { name: string; date: string; outTime?: string; inTime?: string; remarks: string };
+  status: string;
+  managerSign?: any;
+  employeeSign?: any;
+  securitySign?: any;
   createdAt: string;
 }
 
@@ -88,14 +99,7 @@ export interface Employee {
   name: string;
   email: string;
   department: string;
-  assets: {
-    id: string;
-    name: string;
-    type: string;
-    hardware: string;
-    os: string;
-    software: string[];
-  }[];
+  assets: any[];
 }
 
 export interface Department {
@@ -109,10 +113,10 @@ export interface Department {
 export interface Requirement {
   id: string;
   employeeName: string;
-  type: 'Hardware' | 'Software' | 'Access';
+  type: string;
   description: string;
-  priority: Severity;
-  status: 'Pending' | 'Approved' | 'Rejected' | 'Fulfilled';
+  priority: string;
+  status: string;
   createdAt: string;
 }
 
@@ -122,14 +126,5 @@ export interface DeploymentGroup {
   description: string;
   deviceCount: number;
   lastUpdate: string;
-  status: 'Active' | 'Paused' | 'Archived';
-}
-
-export interface Task {
-  id: string;
-  title: string;
-  description: string;
-  status: 'Pending' | 'In Progress' | 'Completed';
-  dueDate: string;
-  assignedTo: string;
+  status: string;
 }

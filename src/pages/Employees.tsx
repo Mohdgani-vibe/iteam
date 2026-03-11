@@ -82,7 +82,7 @@ export default function Employees() {
                         Hardware Specs
                       </div>
                       <p className="text-sm text-slate-600 pl-7 leading-relaxed">
-                        {asset.hardware}
+                        {asset.cpu} • {asset.ram} • {asset.storage}
                       </p>
                     </div>
 
@@ -102,9 +102,9 @@ export default function Employees() {
                         Installed Software
                       </div>
                       <div className="flex flex-wrap gap-2 pl-7">
-                        {asset.software.map((sw) => (
-                          <span key={sw} className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded-md">
-                            {sw}
+                        {(asset.installedSoftware || []).map((sw: any) => (
+                          <span key={sw.name} className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded-md">
+                            {sw.name}
                           </span>
                         ))}
                       </div>

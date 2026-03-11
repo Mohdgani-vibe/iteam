@@ -65,7 +65,7 @@ export default function DevicesList() {
           </button>
           <button 
             onClick={handleExportPDF}
-            className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-all flex items-center gap-2"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all flex items-center gap-2 shadow-sm"
           >
             <Download className="w-4 h-4" />
             PDF Report

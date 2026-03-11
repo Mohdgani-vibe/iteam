@@ -60,25 +60,21 @@ export default function GatepassDetail() {
     });
 
     // Signatures
-    const finalY = (doc as any).lastAutoTable.finalY + 20;
-    doc.setFontSize(12);
-    doc.text('Signatures:', 20, finalY);
-
+    const finalY = (doc as any).lastAutoTable.finalY + 30;
     doc.setFontSize(10);
-    // Manager
-    doc.text('Manager:', 20, finalY + 15);
-    doc.text(gp.managerSign?.name || 'Pending', 20, finalY + 22);
-    doc.text(gp.managerSign?.date || '', 20, finalY + 27);
-
-    // Employee
-    doc.text('Employee:', 80, finalY + 15);
-    doc.text(gp.employeeSign?.name || 'Pending', 80, finalY + 22);
-    doc.text(gp.employeeSign?.date || '', 80, finalY + 27);
-
-    // Security
-    doc.text('Security:', 140, finalY + 15);
-    doc.text(gp.securitySign?.name || 'Pending', 140, finalY + 22);
-    doc.text(gp.securitySign?.date || '', 140, finalY + 27);
+    
+    // Signature lines
+    doc.line(20, finalY, 70, finalY);
+    doc.text('Employee Signature', 20, finalY + 5);
+    if (gp.employeeSign) doc.text(gp.employeeSign.name, 20, finalY - 2);
+    
+    doc.line(80, finalY, 130, finalY);
+    doc.text('Manager Signature', 80, finalY + 5);
+    if (gp.managerSign) doc.text(gp.managerSign.name, 80, finalY - 2);
+    
+    doc.line(140, finalY, 190, finalY);
+    doc.text('Security Signature', 140, finalY + 5);
+    if (gp.securitySign) doc.text(gp.securitySign.name, 140, finalY - 2);
 
     doc.save(`gatepass_${gp.id}.pdf`);
   };

@@ -1,223 +1,235 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Monitor, 
-  Ticket, 
-  AlertCircle, 
-  Package, 
-  FileText, 
-  TrendingUp, 
-  ArrowUpRight,
-  ArrowDownRight,
-  Clock,
-  MessageSquare
+  Plus,
+  Send,
+  Bot,
+  User as UserIcon,
+  Search,
+  ChevronRight,
+  MessageSquare,
+  Monitor,
+  ShieldCheck,
+  FileText,
+  Zap,
+  ArrowRight
 } from 'lucide-react';
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  Cell
-} from 'recharts';
-import { motion } from 'motion/react';
 import { cn } from '../lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const TICKET_TREND_DATA = [
-  { name: 'Mon', tickets: 12 },
-  { name: 'Tue', tickets: 19 },
-  { name: 'Wed', tickets: 15 },
-  { name: 'Thu', tickets: 22 },
-  { name: 'Fri', tickets: 30 },
-  { name: 'Sat', tickets: 10 },
-  { name: 'Sun', tickets: 8 },
-];
+interface Message {
+  id: string;
+  text: string;
+  sender: 'ai' | 'user';
+  timestamp: Date;
+}
 
-const STOCK_BY_BRANCH = [
-  { name: 'HO Bangalore', stock: 450 },
-  { name: 'Support Office', stock: 320 },
-  { name: 'Mumbai', stock: 280 },
-  { name: 'Chennai', stock: 190 },
-];
-
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
-
-const STAT_CARDS = [
-  { label: 'Total Devices', value: '1,284', icon: Monitor, color: 'blue', trend: '+12%' },
-  { label: 'Open Tickets', value: '42', icon: Ticket, color: 'indigo', trend: '-5%' },
-  { label: 'Active Alerts', value: '22', icon: AlertCircle, color: 'red', trend: '+2%' },
-  { label: 'Chat-to-Tickets', value: '8', icon: MessageSquare, color: 'emerald', trend: '+3' },
-  { label: 'Low Stock Items', value: '7', icon: Package, color: 'amber', trend: '0%' },
+const SUGGESTIONS = [
+  "Convert chat to ticket after conversation closes",
+  "Lookup employee-owned devices",
+  "Create software install request",
+  "Show gatepass status and approval trail",
+  "Suggest patch troubleshooting steps"
 ];
 
 export default function Dashboard() {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      text: 'Hello! How can I help with your device, ticket, or gatepass today?',
+      sender: 'ai',
+      timestamp: new Date()
+    },
+    {
+      id: '2',
+      text: 'Raise a software install request for Chrome and show my assigned laptop.',
+      sender: 'user',
+      timestamp: new Date()
+    },
+    {
+      id: '3',
+      text: 'Request drafted. Device found: support.zbl-1395. I can convert this chat into REQ-9915.',
+      sender: 'ai',
+      timestamp: new Date()
+    }
+  ]);
+  const [input, setInput] = useState('');
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSend = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!input.trim()) return;
+
+    const userMsg: Message = {
+      id: Date.now().toString(),
+      text: input,
+      sender: 'user',
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMsg]);
+    setInput('');
+
+    // Simulate AI response
+    setTimeout(() => {
+      const aiMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "I'm processing your request. I've located the relevant records in the IT database.",
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, aiMsg]);
+    }, 1000);
+  };
+
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Zerodha IT Dashboard</h1>
-          <p className="text-slate-500">Welcome back. Here's what's happening today.</p>
-        </div>
-        <div className="flex gap-3">
-          <button className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all">
-            Download Report
-          </button>
-          <button className="px-4 py-2 bg-[#007AFF] text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-all shadow-sm">
-            New Ticket
-          </button>
-        </div>
-      </div>
-
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        {STAT_CARDS.map((card, i) => (
-          <motion.div
-            key={card.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all group"
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className={cn(
-                "p-3 rounded-xl",
-                card.color === 'blue' && "bg-blue-50 text-blue-600",
-                card.color === 'indigo' && "bg-indigo-50 text-indigo-600",
-                card.color === 'red' && "bg-red-50 text-red-600",
-                card.color === 'amber' && "bg-amber-50 text-amber-600",
-                card.color === 'emerald' && "bg-emerald-50 text-emerald-600",
-              )}>
-                <card.icon className="w-6 h-6" />
-              </div>
-              <div className={cn(
-                "flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full",
-                card.trend.startsWith('+') ? "bg-emerald-50 text-emerald-600" : 
-                card.trend.startsWith('-') ? "bg-red-50 text-red-600" : "bg-slate-50 text-slate-600"
-              )}>
-                {card.trend.startsWith('+') ? <ArrowUpRight className="w-3 h-3" /> : 
-                 card.trend.startsWith('-') ? <ArrowDownRight className="w-3 h-3" /> : null}
-                {card.trend}
-              </div>
+    <div className="space-y-8 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-12rem)]">
+        
+        {/* Left Column: AI Helpdesk Assistant */}
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="bg-white border border-slate-200 rounded-[2.5rem] p-8 flex flex-col shadow-sm"
+        >
+          <div className="space-y-6 flex-1">
+            <div className="space-y-1">
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight">AI Helpdesk Assistant</h2>
+              <p className="text-sm font-medium text-slate-500">Select a common action or ask anything below.</p>
             </div>
-            <p className="text-sm font-medium text-slate-500">{card.label}</p>
-            <h3 className="text-2xl font-bold text-slate-900 mt-1">{card.value}</h3>
-          </motion.div>
-        ))}
-      </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-slate-900">Ticket Trends</h3>
-            <select className="bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium px-2 py-1 outline-none">
-              <option>Last 7 Days</option>
-              <option>Last 30 Days</option>
-            </select>
+            <div className="space-y-3">
+              {SUGGESTIONS.map((suggestion, i) => (
+                <button 
+                  key={i}
+                  onClick={() => setInput(suggestion)}
+                  className="w-full text-left p-4 bg-white border border-slate-100 rounded-2xl hover:border-blue-200 hover:bg-blue-50/50 transition-all group flex items-center justify-between"
+                >
+                  <span className="text-sm font-bold text-slate-700 group-hover:text-blue-600">{suggestion}</span>
+                  <ChevronRight size={16} className="text-slate-300 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={TICKET_TREND_DATA}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 12, fill: '#64748B' }}
-                  dy={10}
-                />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 12, fill: '#64748B' }}
-                />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #E2E8F0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="tickets" 
-                  stroke="#3B82F6" 
-                  strokeWidth={3} 
-                  dot={{ r: 4, fill: '#3B82F6', strokeWidth: 2, stroke: '#fff' }}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-slate-900">Stock by Branch</h3>
-            <button className="text-blue-600 text-xs font-bold hover:underline">View All Inventory</button>
+          {/* Quick Stats at bottom of left card */}
+          <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-100">
+            <div className="text-center">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tickets</p>
+              <p className="text-lg font-black text-slate-900">12</p>
+            </div>
+            <div className="text-center border-x border-slate-100">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Devices</p>
+              <p className="text-lg font-black text-slate-900">45</p>
+            </div>
+            <div className="text-center">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alerts</p>
+              <p className="text-lg font-black text-rose-600">3</p>
+            </div>
           </div>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={STOCK_BY_BRANCH} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F1F5F9" />
-                <XAxis type="number" hide />
-                <YAxis 
-                  dataKey="name" 
-                  type="category" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 12, fill: '#64748B' }}
-                  width={100}
-                />
-                <Tooltip 
-                  cursor={{ fill: '#F8FAFC' }}
-                  contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #E2E8F0' }}
-                />
-                <Bar dataKey="stock" radius={[0, 4, 4, 0]} barSize={32}>
-                  {STOCK_BY_BRANCH.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
+        </motion.div>
 
-      {/* Activity Feed */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-200 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-slate-900">Recent Activity</h3>
-          <button className="text-slate-500 text-sm hover:text-slate-900 transition-all">View History</button>
-        </div>
-        <div className="divide-y divide-slate-100">
-          {[
-            { user: 'Gani', action: 'created a gatepass', target: 'GP-2031', time: '10 mins ago', icon: FileText, color: 'blue' },
-            { user: 'System', action: 'triggered an alert', target: 'Antivirus Disabled', time: '25 mins ago', icon: AlertCircle, color: 'red' },
-            { user: 'Priya', action: 'resolved ticket', target: 'IT-1982', time: '1 hour ago', icon: Ticket, color: 'emerald' },
-            { user: 'Network Team', action: 'updated device', target: 'AD Server', time: '2 hours ago', icon: Monitor, color: 'indigo' },
-          ].map((activity, i) => (
-            <div key={i} className="p-4 flex items-center gap-4 hover:bg-slate-50 transition-all">
-              <div className={cn(
-                "p-2 rounded-lg",
-                activity.color === 'blue' && "bg-blue-50 text-blue-600",
-                activity.color === 'red' && "bg-red-50 text-red-600",
-                activity.color === 'emerald' && "bg-emerald-50 text-emerald-600",
-                activity.color === 'indigo' && "bg-indigo-50 text-indigo-600",
-              )}>
-                <activity.icon className="w-5 h-5" />
+        {/* Right Column: IT Assistant Chat */}
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="bg-white border border-slate-200 rounded-[2.5rem] flex flex-col shadow-sm overflow-hidden"
+        >
+          {/* Chat Header */}
+          <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                <Bot size={20} />
               </div>
-              <div className="flex-1">
-                <p className="text-sm text-slate-600">
-                  <span className="font-bold text-slate-900">{activity.user}</span> {activity.action} <span className="font-semibold text-blue-600">{activity.target}</span>
+              <div>
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">IT Assistant</h3>
+                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest flex items-center gap-1">
+                  <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></span>
+                  Online
                 </p>
               </div>
-              <div className="flex items-center gap-1 text-xs text-slate-400">
-                <Clock className="w-3 h-3" />
-                {activity.time}
-              </div>
             </div>
-          ))}
-        </div>
+            <button className="text-xs font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors">Clear Chat</button>
+          </div>
+
+          {/* Messages Area */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-white">
+            <AnimatePresence mode="popLayout">
+              {messages.map((msg) => (
+                <motion.div 
+                  key={msg.id}
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  className={cn(
+                    "flex flex-col max-w-[85%]",
+                    msg.sender === 'user' ? "ml-auto items-end" : "items-start"
+                  )}
+                >
+                  <div className={cn(
+                    "px-5 py-3.5 rounded-2xl text-sm font-medium leading-relaxed shadow-sm",
+                    msg.sender === 'user' 
+                      ? "bg-blue-600 text-white rounded-tr-none" 
+                      : "bg-slate-100 text-slate-900 rounded-tl-none"
+                  )}>
+                    {msg.text}
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-widest">
+                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Input Area */}
+          <div className="p-6 border-t border-slate-100 bg-slate-50/50">
+            <form onSubmit={handleSend} className="relative group">
+              <input 
+                type="text" 
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type message..."
+                className="w-full bg-white border border-slate-200 rounded-2xl pl-5 pr-14 py-4 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all shadow-sm"
+              />
+              <button 
+                type="submit"
+                disabled={!input.trim()}
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center hover:bg-blue-700 transition-all disabled:opacity-50 disabled:hover:bg-blue-600 shadow-lg shadow-blue-200"
+              >
+                <Send size={18} />
+              </button>
+            </form>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Bottom Quick Access */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {[
+          { label: 'My Devices', icon: Monitor, count: 2, color: 'text-blue-600', bg: 'bg-blue-50' },
+          { label: 'Open Tickets', icon: MessageSquare, count: 1, color: 'text-amber-600', bg: 'bg-amber-50' },
+          { label: 'Gatepasses', icon: FileText, count: 0, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+          { label: 'System Health', icon: Zap, count: '99%', color: 'text-indigo-600', bg: 'bg-indigo-50' },
+        ].map((item, i) => (
+          <button key={i} className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:border-blue-200 hover:shadow-md transition-all flex items-center gap-4 group">
+            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center transition-colors", item.bg, item.color)}>
+              <item.icon size={24} />
+            </div>
+            <div className="text-left">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.label}</p>
+              <p className="text-lg font-black text-slate-900">{item.count}</p>
+            </div>
+            <ArrowRight size={16} className="ml-auto text-slate-300 group-hover:text-blue-500 transition-colors" />
+          </button>
+        ))}
       </div>
     </div>
   );

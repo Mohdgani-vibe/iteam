@@ -108,6 +108,15 @@ export default function PatchManagement() {
                 </tbody>
               </table>
             </div>
+            <div className="bg-slate-900 rounded-md p-4 font-mono text-xs text-slate-300 space-y-2">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                <span className="text-slate-500">Salt Command Preview</span>
+                <span className="text-blue-400">salt '*' state.apply security.patches</span>
+              </div>
+              <p><span className="text-emerald-400">minion-01:</span> Success (12 states changed)</p>
+              <p><span className="text-emerald-400">minion-02:</span> Success (0 states changed)</p>
+              <p><span className="text-amber-400">minion-03:</span> Failed (1 error: connection timeout)</p>
+            </div>
           </div>
 
           <div className="space-y-6">
